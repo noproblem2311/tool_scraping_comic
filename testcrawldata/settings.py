@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
     'myapp',
     'storages',
 ]
@@ -49,12 +50,15 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
 ROOT_URLCONF = 'testcrawldata.urls'
 
+SESSION_ENGINE = 'django.contrib.sessions.backends.cache'  # You can use other engines as well
 
 # setting google storage
 # STORAGES = {"default": {"BACKEND": "storages.backends.gcloud.GoogleCloudStorage"}}

@@ -1,6 +1,6 @@
 from django.http import HttpResponse
 from django.conf import settings
-from google.cloud import storage
+# from google.cloud import storage
 import io
 from playwright.sync_api import sync_playwright
 from playwright.async_api import async_playwright
@@ -14,14 +14,46 @@ from selenium.webdriver.support import expected_conditions as EC
 
 
 
+# myapp/views.py
+from django.shortcuts import render
+from .forms import FilterForm
+from django.http import HttpResponseRedirect
+from django.urls import reverse
+from django.shortcuts import redirect
+
+def nhapdata(request):
+    if request.method == 'POST':
+        form = FilterForm(request.POST)
+        if form.is_valid():
+            min_rating = form.cleaned_data['min_rating']
+            link = form.cleaned_data['link']
+
+            # Store values in the session
+            request.session['min_rating'] = min_rating
+            request.session['link'] = link
+
+            # Redirect to the timtruyen_selenium view
+            return redirect('timtruyen_selenium')
+
+    else:
+        form = FilterForm()
+
+    return render(request, 'nhapdata.html', {'form': form})
 def timtruyen_selenium(request):
+       # Retrieve values from the session
+    min_rating = float(request.session.get('min_rating', 0.0))
+    base_link = request.session.get('link', '')
+
+  
+    print("===============================",min_rating,"================================")
+    print("===============================",base_link,"================================")
     tentruyen_html = ''
     driver = webdriver.Chrome()
 
     try:
         for i in range(1, 5):
             tentruyen = []
-            driver.get(f'https://www.nettruyenus.com/tim-truyen-nang-cao?genres=1,53&notgenres=12,32&gender=-1&status=-1&minchapter=1&sort=0&page={i}')
+            driver.get(f'{base_link}&page={i}')
             
             try:
                 jtip_links = driver.find_elements(By.CSS_SELECTOR, 'a.jtip')
@@ -31,8 +63,8 @@ def timtruyen_selenium(request):
 
             main_window = driver.current_window_handle  # Save the main window handle
             
-            for link in jtip_links:
-                href_value = link.get_attribute('href')
+            for li in jtip_links:
+                href_value = li.get_attribute('href')
                 
                 # Open the link in a new tab and handle exceptions
                 try:
@@ -54,7 +86,7 @@ def timtruyen_selenium(request):
                         except ValueError:
                             rating_value = 0.0
 
-                        if rating_value > 3.6:
+                        if rating_value > min_rating:
 
                             title_element = driver.find_element(By.CSS_SELECTOR, 'h1.title-detail')
                             title_text = title_element.text

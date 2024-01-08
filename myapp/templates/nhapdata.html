@@ -1,0 +1,15 @@
+<!-- myapp/templates/nhapdata.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Nhập Dữ Liệu</title>
+</head>
+<body>
+    <h2>Nhập Dữ Liệu</h2>
+    <form method="post" action="{% url 'nhapdata' %}">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <input type="submit" value="Lọc Truyện">
+    </form>
+</body>
+</html>
